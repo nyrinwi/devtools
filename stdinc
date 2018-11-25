@@ -1,0 +1,31 @@
+#!/usr/bin/python
+
+import optparse
+import logging
+
+_logger = logging.getLogger("")
+
+def main():
+    parser = optparse.OptionParser()
+    parser.add_option("-M","--main",action="store_true",default=False)
+    parser.add_option("-C","--std-c",action="store_true",default=False)
+    opts,args = parser.parse_args()
+    if opts.std_c:
+        includes = [ "stdio.h", "string.h" ]
+    else:
+        includes = [ "cstdio", "cstring", "iostream" ]
+
+    more_includes = []
+
+    for inc in includes + more_includes:
+        print "#include <{0}>".format(inc)
+
+    if opts.main:
+        print ""
+        print "int main( int argc, char *argv[] )"
+        print "{"
+        print "}"
+
+if __name__ == "__main__":
+    main()
+
