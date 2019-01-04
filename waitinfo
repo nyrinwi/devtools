@@ -2,7 +2,6 @@
 
 import optparse
 import logging
-import subprocess
 import os
 import sys
 
@@ -10,18 +9,24 @@ _logger = logging.getLogger(__name__)
 
 def waitinfo(x):
     x = int(x)
+    if x == 127:
+        return "{x:3}: command not found".format(**locals())
+    elif x == 126:
+        return "{x:3}: command not found".format(**locals())
+
     exited = os.WIFEXITED(x)
+    exitstatus = os.WEXITSTATUS(x) if exited else 0
     signaled = os.WIFSIGNALED(x)
-    signal = os.WTERMSIG(x) if signaled else None
-    status = os.WEXITSTATUS(x) if exited else None
+    termsig = os.WTERMSIG(x) if signaled else 0
 
-    print x,signaled,exited
-    assert((exited and not signaled) or (signaled and not exited))
+    assert(exited ^ signaled)
 
-    how = "exited" if exited else "signaled"
+    if exited:
+        how = "exited {0}".format(exitstatus)
+    else:
+        how = "signaled {0}".format(termsig)
 
-    return "{x:3}: {how} {signal}".format(**locals())
-
+    return "{x:5}: {how}".format(**locals())
 
 def main():
     parser = optparse.OptionParser()
@@ -37,9 +42,10 @@ def main():
             logging.getLogger("").setLevel(logging.DEBUG)
 
     if opts.execute:
-        stats = [ subprocess.Popen(args).wait() ]
+        stats = [ os.popen(" ".join(args)).close() ]
     else:
         stats = args[:]
+    _logger.info("stats {0}".format(stats))
 
     if not stats:
         _logger.error("nothing to do")
