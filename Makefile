@@ -28,5 +28,20 @@ mincore: mincore.o mapping.o
 
 evict: evict.o mapping.o
 
+
+PROGS=mincore \
+	evict \
+	stdinc \
+	popt \
+	$()
+
+install::
+	cp $(PROGS) $(HOME)/bin
+
+uninstall::
+	$(RM) $(addprefix $(HOME)/bin/,$(PROGS))
+
+
 clean::
 	$(RM) test_stdinc* *.pyc
+
