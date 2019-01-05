@@ -30,7 +30,12 @@ def waitinfo(x):
 
 def main():
     parser = optparse.OptionParser()
-    parser.add_option("-x","--execute",action="store_true",default=False)
+    parser.usage = "%prog status [status...] | %prog -x command [args...]"
+    parser.description = "Print the details of the exit status given. "\
+     "Or execute a specified command, then wait for the status and "\
+     "show the details"
+    parser.add_option("-x","--execute",action="store_true",default=False,
+        help="execute the command in the shell and wait for the status")
     parser.add_option("--debug",action="count",default=0)
     opts,args = parser.parse_args()
 

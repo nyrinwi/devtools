@@ -1,5 +1,10 @@
 .PHONY: test_stdinc test_popt
 
+CXXFLAGS=-Wall -ggdb
+CC=g++
+
+all:: mincore evict
+
 test:: test_popt test_stdinc
 
 test_popt:
@@ -15,6 +20,13 @@ test_stdinc:
 	$(MAKE) clean
 	@echo $@ PASS
 
+
+test_mincore:
+	./mincore mincore foo
+
+mincore: mincore.o mapping.o
+
+evict: evict.o mapping.o
 
 clean::
 	$(RM) test_stdinc* *.pyc
