@@ -4,8 +4,14 @@ import optparse
 import logging
 import os
 import sys
+import signal
 
 _logger = logging.getLogger(__name__)
+
+_bysig = dict([ (y,x) for (x,y) in vars(signal).items() if x.startswith("SIG") and not x.startswith("SIG_")])
+
+def signame(x):
+    return _bysig.get(x)
 
 def waitinfo(x):
     x = int(x)
@@ -15,16 +21,18 @@ def waitinfo(x):
         return "{x:3}: command not found".format(**locals())
 
     exited = os.WIFEXITED(x)
-    exitstatus = os.WEXITSTATUS(x) if exited else 0
     signaled = os.WIFSIGNALED(x)
-    termsig = os.WTERMSIG(x) if signaled else 0
 
     assert(exited ^ signaled)
 
     if exited:
-        how = "exited {0}".format(exitstatus)
+        how = "exited {0}".format(os.WEXITSTATUS(x))
+    elif signaled:
+        termsig = os.WTERMSIG(x)
+        coredump = "core dumped" if os.WCOREDUMP(x) else "no core dump"
+        how = "signaled {0} [{1}] {2}".format(signame(termsig),termsig,coredump)
     else:
-        how = "signaled {0}".format(termsig)
+        raise RuntimeError("invalid status {0}".format(x))
 
     return "{x:5}: {how}".format(**locals())
 

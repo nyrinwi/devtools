@@ -33,6 +33,7 @@ PROGS=mincore \
 	evict \
 	stdinc \
 	popt \
+	waitinfo \
 	$()
 
 install::
