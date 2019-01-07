@@ -8,3 +8,14 @@ Generates a skeleton for a python script that uses optparse.
 
 Generates a skeleton for a C or C++ program
 
+## mincore
+
+Tell me how many pages of a file are in memory
+
+## evict
+
+Evict a file from memory
+
+## waitinfo
+
+Tell me details about raw wait status (ref. wait(2))
