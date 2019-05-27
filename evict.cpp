@@ -13,12 +13,12 @@ int main( int argc, char *argv[] )
         try
         {
             Mapping m(filename);
-            m.evict();
+            m.evict_pct(100.0);
             printf("%s %d pages, %.1f%% resident\n",
-                filename, m.n_pages, m.pct_mapped());
+                filename, m.n_pages(), m.pct_resident());
 
             Mapping m_after(filename);
-            printf("%s %d pages resident\n",filename,m_after.n_mapped);
+            printf("%s %d pages resident\n",filename,m_after.n_resident);
         }
         catch ( const std::runtime_error &e )
         {
