@@ -25,6 +25,8 @@ test_stdinc:
 	$(MAKE) clean
 	@echo $@ PASS
 
+test_waitinfo:
+	waitinfo -x -- bash -c \'exit 5\'
 
 test_mincore:
 	./mincore mincore foo
@@ -46,7 +48,6 @@ install::
 
 uninstall::
 	$(RM) $(addprefix $(HOME)/bin/,$(PROGS))
-
 
 clean::
 	$(RM) test_stdinc* *.pyc
