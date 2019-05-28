@@ -92,3 +92,9 @@ void Mapping::evict_bytes( size_t n_bytes )
     mincore();
 }
 
+void Mapping::evict_pages( size_t n_pages )
+{
+    size_t nbytes = n_pages * getpagesize();
+    evict_bytes(nbytes);
+}
+

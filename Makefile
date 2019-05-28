@@ -3,9 +3,14 @@
 CXXFLAGS=-Wall -ggdb
 CC=g++
 
-all:: mincore evict
+all:: mincore evict subs
+
+.PHONY: subs
+subs:
+	$(MAKE) -C test
 
 test:: test_popt test_stdinc
+	$(MAKE) -C test test
 
 test_popt:
 	./popt > test_popt.py

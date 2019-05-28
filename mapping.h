@@ -3,7 +3,7 @@
 /**
  * Create a read-only shared mapping of a file.
  * The size of the mapping is based on the size of the file at the
- * time of contruction.
+ * time of construction.
  */
 class Mapping
 {
@@ -43,6 +43,7 @@ public:
     // Kick pages out of memory starting at the beginning of the mapping
     void evict_pct( double pct=100.0 );
     void evict_bytes( size_t n_bytes );
+    void evict_pages( size_t n_pages );
 
     Mapping( const char* filename);
     ~Mapping();
