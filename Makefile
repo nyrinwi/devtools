@@ -51,6 +51,7 @@ uninstall::
 
 clean::
 	$(RM) test_stdinc* *.pyc
+	make -C test clean
 
 # DO NOT DELETE
 
