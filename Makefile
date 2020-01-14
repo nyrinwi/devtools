@@ -39,6 +39,7 @@ evict: evict.o mapping.o
 PROGS=mincore \
 	evict \
 	stdinc \
+	perror \
 	popt \
 	waitinfo \
 	$()

@@ -8,7 +8,7 @@ import errno
 _logger = logging.getLogger(__name__)
 
 def main():
-    parser = optparse.OptionParser()
+    parser = optparse.OptionParser("usage %prog [errno]")
     parser.add_option("--debug",action="count",default=0)
     opts,args = parser.parse_args()
 
