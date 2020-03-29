@@ -40,6 +40,7 @@ PROGS=mincore \
 	evict \
 	stdinc \
 	perror \
+	pexpr \
 	popt \
 	waitinfo \
 	$()
