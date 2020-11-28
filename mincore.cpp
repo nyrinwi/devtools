@@ -13,7 +13,7 @@ int main( int argc, char *argv[] )
         try
         {
             Mapping m(filename);
-            printf("%s %d pages, %.1f%% resident\n",
+            printf("%s %lu pages, %.1f%% resident\n",
                 filename, m.n_pages(), m.pct_resident());
         }
         catch ( const std::runtime_error &e )
