@@ -14,11 +14,11 @@ int main( int argc, char *argv[] )
         {
             Mapping m(filename);
             m.evict_pct(100.0);
-            printf("%s %d pages, %.1f%% resident\n",
+            printf("%s %lu pages, %.1f%% resident\n",
                 filename, m.n_pages(), m.pct_resident());
 
             Mapping m_after(filename);
-            printf("%s %d pages resident\n",filename,m_after.n_resident);
+            printf("%s %lu pages resident\n",filename,m_after.n_resident);
         }
         catch ( const std::runtime_error &e )
         {
