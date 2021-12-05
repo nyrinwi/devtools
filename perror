@@ -4,11 +4,14 @@ from __future__ import print_function
 import optparse
 import logging
 import errno
+import re
+import os
 
 _logger = logging.getLogger(__name__)
 
 def main():
     parser = optparse.OptionParser("usage %prog [errno]")
+    parser.add_option("-s","--search",metavar="regex")
     parser.add_option("--debug",action="count",default=0)
     opts,args = parser.parse_args()
 
@@ -24,8 +27,11 @@ def main():
         vals = errno.errorcode
     
     for v in vals:
-        msg = errno.errorcode.get(v,"N/A")
-        print("{0:3d} {1}".format(v,msg))
+        key = errno.errorcode.get(v,"N/A")
+        text = os.strerror(v)
+        _logger.debug("key: '{0}'".format(key))
+        if not opts.search or re.search(opts.search,text) is not None:
+            print("{0:3d} {1} - {2}".format(v,key,text))
 
 if __name__ == "__main__":
     main()
