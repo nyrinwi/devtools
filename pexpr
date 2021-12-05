@@ -1,6 +1,4 @@
-#!/usr/bin/python
-
-from __future__ import print_function
+#!/usr/bin/python3
 import optparse
 import re
 import logging
@@ -8,23 +6,15 @@ from itertools import chain
 
 _logger = logging.getLogger(__name__)
 
-def split(args):
-    toks = [re.split("([\*+-/]+)",text) for text in args.strip().split()]
-    tok = [x for x in chain(*toks) if x]
-    _logger.debug("chain {0}".format(tok))
-
-    mult=dict(k=1024,K=1024,m=1024*1024,M=1024*1024,G=1024*1024*1024,g=1024*1024*1024)
-    for i,val in enumerate(tok):
-        m = re.match("(\S+)([KkMmGg])$",val)
-        if m is None:
-            continue
-        lv = m.group(1)
-        rv = mult[m.group(2)]
-        _logger.debug("lv={0},rv={1}".format(lv,rv))
-        val="({0}*{1})".format(lv,rv)
-        tok[i] = val
-
-    return " ".join(tok)
+def expand(text):
+    mult = {"k":1024,"m":1024*1024,"g":1024**3,"t":1024**4}
+    keys = "".join([str(x) for x in mult.keys()])
+    patt = "(\d*\.*\d)([{0}{1}])".format(keys,keys.upper())
+    for m in re.finditer(patt,text):
+        repl = float(m.group(1))*mult.get(m.group(2))
+        text = re.sub(m.group(0),str(repl),text)
+    _logger.debug("expanded: {0}".format(text))
+    return text
 
 class Value(object):
     def __init__(self,text):
@@ -48,7 +38,9 @@ def main():
         if opts.debug > 1:
             logging.getLogger("").setLevel(logging.DEBUG)
 
-    estr = split(" ".join(args))
+    _logger.debug("args={0}".format(args))
+    estr = " ".join(args)
+    estr = expand(estr)
     val = Value(estr)
     print("{0}".format(val))
 
