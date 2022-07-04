@@ -17,8 +17,8 @@ test:: test_popt test_stdinc
 test_popt:
 	./popt > test_popt.py
 	python ./test_popt.py --help
-	python ./test_popt.py --debug
-	python ./test_popt.py --debug --debug
+	python ./test_popt.py --debug x
+	python ./test_popt.py --debug --debug x
 	@echo $@ PASS
 
 test_stdinc:
