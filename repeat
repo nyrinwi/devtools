@@ -1,0 +1,48 @@
+#!/usr/bin/python
+
+from __future__ import print_function
+import optparse
+import logging
+from subprocess import Popen
+import sys
+
+_logger = logging.getLogger(__name__)
+
+def main():
+    parser = optparse.OptionParser("%prog -n N [options] -- cmd...")
+    parser.add_option("-n","--repeats",type="int",default=0)
+    parser.add_option("-s","--stop-on-error",action="store_true",default=False)
+    parser.add_option("-v","--verbose",action="store_true",default=False)
+    parser.add_option("--debug",action="count",default=0)
+    opts,args = parser.parse_args()
+
+    logging.basicConfig( level=logging.INFO )
+    if opts.debug:
+        _logger.setLevel(logging.DEBUG)
+        _logger.debug("debug level {0}".format(opts.debug))
+        if opts.debug > 1:
+            logging.getLogger("").setLevel(logging.DEBUG)
+
+    if not args or opts.repeats <= 0:
+        parse.print_usage()
+        sys.exit(0)
+
+    command_line = " ".join(args)
+    n = 0
+    nfailures = 0
+    while n < opts.repeats:
+        r = Popen(command_line,shell=True).wait()
+        n = n + 1
+        if opts.verbose:
+            print("{0} -> {1}: {2}".format(n,r,command_line))
+
+        if r != 0:
+            nfailures += 1
+            if opts.stop_on_error:
+                break
+
+    print("{0} runs, {1} failures".format(n,nfailures))
+
+if __name__ == "__main__":
+    main()
+

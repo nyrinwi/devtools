@@ -43,6 +43,7 @@ PROGS=$(CXXPROGS) \
 	perror \
 	pexpr \
 	popt \
+    repeat \
 	waitinfo \
 	$()
 
