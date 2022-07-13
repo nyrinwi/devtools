@@ -1,0 +1,117 @@
+#!/usr/bin/python3
+
+import argparse
+import logging
+
+_logger = logging.getLogger(__name__)
+
+class UnitValue:
+    def __init__(self,lhs,rhs):
+        self.lhs = str(lhs)
+        if rhs and not isinstance(rhs,str):
+            self.rhs = " ".join(rhs)
+        elif rhs or isinstance(rhs,str):
+            self.rhs = str(rhs)
+        else:
+            self.rhs = None
+
+    def __str__(self):
+        return "{lhs}={rhs}".format(**vars(self))
+
+class Unit:
+    _reqUnits = ["Unit","Install"]
+    _locations = {
+        "Description"   : "Unit",
+        "WantedBy"      : "Install",
+        "ExecStart"     : "Service",
+        "After"         : "Unit",
+        "Before"        : "Unit",
+        "BindsTo"       : "Unit",
+        "PartOf"        : "Unit",
+        "Requires"      : "Unit",
+        "RequiredBy"    : "Install", # note: the manual is incorrect
+        "Restart"       : "Service",
+        "Wants"         : "Unit",
+
+    }
+    def __init__(self,name,**kw):
+        self.name = str(name)
+        self.units = {}
+
+        # Required values
+        kw.setdefault("Description","")
+
+        # Required units
+        self.units["Install"] = {}
+
+        for key,val in sorted(kw.items()):
+            self.addValue(UnitValue(key,val))
+
+    def addValue(self,unitVal):
+        if not isinstance(unitVal,UnitValue):
+            raise RuntimeError("not implemented")
+        unitName = Unit._locations.get(unitVal.lhs)
+        if unitName is None:
+            raise RuntimeError("unrecognized: {0}".format(unitVal.lhs))
+        values = self.units.setdefault(unitName,{})
+        _logger.debug("addValue {0} -> {1}".format(unitVal,unitName))
+        values[unitVal.lhs] = unitVal
+
+    def addValues(self,data):
+        for key,val in data.items():
+            unitName = Unit._locations.get(key)
+            if unitName is None or val is None:
+                continue
+            self.addValue(UnitValue(key,val))
+
+    def __str__(self):
+        lines = []
+        unitNames = Unit._reqUnits[:]
+        for name in sorted(self.units.keys()):
+            if name not in unitNames:
+                unitNames.append(name)
+
+        for name in unitNames:
+            lines.append("[{0}]".format(name))
+            assert isinstance(self.units[name],dict)
+            for _,value in sorted(self.units[name].items()):
+                _logger.debug("{0}".format(value.__class__))
+                lines.append(str(value))
+            lines.append("")
+        return "\n".join(lines)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(dest="filename",nargs="*")
+    parser.add_argument("--Description","-d",metavar="VAL",default="n/a")
+    parser.add_argument("--ExecStart","-e",metavar="VAL",default="/bin/true")
+    parser.add_argument("--PartOf","-p",metavar="VAL",default=None)
+    parser.add_argument("--WantedBy","-w",metavar="VAL",action="append",default=["multi-user.target"])
+
+    for arg in Unit._locations.keys():
+        argTag = "--{0}".format(arg)
+        if argTag in vars(parser):
+            pass
+        try:
+            parser.add_argument(argTag,metavar="VAL")
+        except argparse.ArgumentError:
+            pass
+
+    parser.add_argument("--debug",action="count",default=0)
+    opts = parser.parse_args()
+
+    logging.basicConfig( level=logging.INFO )
+    if opts.debug:
+        _logger.setLevel(logging.DEBUG)
+        _logger.debug("debug level {0}".format(opts.debug))
+        if opts.debug > 1:
+            logging.getLogger("").setLevel(logging.DEBUG)
+
+    unit = Unit("foo")
+    unit.addValues(vars(opts))
+    print(unit)
+
+if __name__ == "__main__":
+    main()
+
