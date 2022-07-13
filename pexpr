@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import optparse
 import re
 import logging
@@ -27,7 +27,7 @@ class Value(object):
             self.value,ink,inm,ing)
 
 def main():
-    parser = optparse.OptionParser()
+    parser = optparse.OptionParser("usage %prog {expression}")
     parser.add_option("--debug",action="count",default=0)
     opts,args = parser.parse_args()
 
