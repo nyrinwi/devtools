@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import optparse
 import logging
@@ -18,13 +18,13 @@ def main():
     more_includes = []
 
     for inc in includes + more_includes:
-        print "#include <{0}>".format(inc)
+        print("#include <{0}>".format(inc))
 
     if opts.main:
-        print ""
-        print "int main( int argc, char *argv[] )"
-        print "{"
-        print "}"
+        print("")
+        print("int main( int argc, char *argv[] )")
+        print("{")
+        print("}")
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-from __future__ import print_function
 import optparse
 import logging
 from subprocess import Popen
@@ -24,7 +23,7 @@ def main():
             logging.getLogger("").setLevel(logging.DEBUG)
 
     if not args or opts.repeats <= 0:
-        parse.print_usage()
+        parser.print_usage()
         sys.exit(0)
 
     command_line = " ".join(args)

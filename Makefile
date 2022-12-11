@@ -2,6 +2,7 @@
 
 CXXFLAGS=-Wall -ggdb
 CC=g++
+PYTHON=python3
 
 CXXPROGS=mincore evict
 
@@ -11,14 +12,14 @@ all:: $(CXXPROGS) subs
 subs:
 	$(MAKE) -C test
 
-test:: test_popt test_stdinc
+test:: test_popt test_stdinc test_waitinfo
 	$(MAKE) -C test test
 
 test_popt:
 	./popt > test_popt.py
-	python ./test_popt.py --help
-	python ./test_popt.py --debug x
-	python ./test_popt.py --debug --debug x
+	$(PYTHON) ./test_popt.py --help
+	$(PYTHON) ./test_popt.py --debug x
+	$(PYTHON) ./test_popt.py --debug --debug x
 	@echo $@ PASS
 
 test_stdinc:
@@ -28,7 +29,8 @@ test_stdinc:
 	@echo $@ PASS
 
 test_waitinfo:
-	waitinfo -x -- bash -c \'exit 5\'
+	./waitinfo -x -- bash -c \'exit 5\' | grep 'exited 5'
+	./waitinfo -x -- bash -c \'exit 6\' | grep 'exited 6'
 
 test_mincore:
 	./mincore mincore foo
