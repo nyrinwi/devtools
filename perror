@@ -25,7 +25,7 @@ def main():
     if not vals:
         vals = errno.errorcode
     
-    for v in vals:
+    for v in sorted(vals):
         key = errno.errorcode.get(v,"N/A")
         text = os.strerror(v)
         _logger.debug("key: '{0}'".format(key))
