@@ -23,3 +23,7 @@ Tell me details about raw wait status (ref. wait(2))
 ## perror
 
 Show me the value for an errno (or all of them)
+
+## branchname
+
+Use my user name and date stamp to create a new branch name
