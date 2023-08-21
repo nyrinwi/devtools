@@ -41,6 +41,7 @@ evict: evict.o mapping.o
 
 
 PROGS=$(CXXPROGS) \
+    gencpp \
 	stdinc \
 	perror \
 	pexpr \
