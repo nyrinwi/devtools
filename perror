@@ -3,6 +3,7 @@
 import optparse
 import logging
 import errno
+import sys
 import re
 import os
 
@@ -10,6 +11,7 @@ _logger = logging.getLogger(__name__)
 
 def main():
     parser = optparse.OptionParser("usage %prog [errno]")
+    parser.description = "Lookup errno values or strings"
     parser.add_option("-s","--search",metavar="regex")
     parser.add_option("--debug",action="count",default=0)
     opts,args = parser.parse_args()
@@ -21,16 +23,22 @@ def main():
         if opts.debug > 1:
             logging.getLogger("").setLevel(logging.DEBUG)
 
-    vals = [int(x) for x in args]
-    if not vals:
-        vals = errno.errorcode
-    
+    try:
+        vals = [int(x) for x in args]
+    except ValueError as e:
+        _logger.error("{}".format(e))
+        sys.exit(1)
+
+    if opts.search:
+        for err,name in sorted(errno.errorcode.items()):
+            if opts.search in name:
+                vals.append(err)
+
     for v in sorted(vals):
         key = errno.errorcode.get(v,"N/A")
         text = os.strerror(v)
         _logger.debug("key: '{0}'".format(key))
-        if not opts.search or re.search(opts.search,text) is not None:
-            print("{0:3d} {1} - {2}".format(v,key,text))
+        print("{0:3d} {1} - {2}".format(v,key,text))
 
 if __name__ == "__main__":
     main()
