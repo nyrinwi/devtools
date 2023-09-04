@@ -22,8 +22,10 @@ catch (const std::exception& exc)
 
 def main():
     parser = argparse.ArgumentParser("Generate C++ boilerplate")
-    parser.add_argument("-m","--monotime",action="store_true",default=False)
-    parser.add_argument("-c","--catch",action="store_true",default=False)
+    parser.add_argument("-m","--monotime",action="store_true",default=False,
+        help="monotonic timer")
+    parser.add_argument("-c","--catch",action="store_true",default=False,
+        help="catch(const exception &e)")
     args = parser.parse_args()
 
     if args.monotime:
