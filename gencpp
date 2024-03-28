@@ -6,12 +6,23 @@ import logging
 _logger = logging.getLogger(__name__)
 
 _monotime="""\
+// C++98
 static inline double monotime()
 {
     timespec ts;
     clock_gettime(CLOCK_MONOTONIC,&ts);
     return ts.tv_sec + 1e-9*ts.tv_nsec;
 }
+
+// C++11 or later
+static inline double monoTime()
+{
+    using namespace std::chrono;
+    auto t0 = steady_clock::now();
+    auto now_ns = time_point_cast<nanoseconds>(t0);
+    return 1e-9*now_ns.time_since_epoch().count();
+}
+
 """
 
 _catch="""\
