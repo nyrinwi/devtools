@@ -6,7 +6,11 @@ PYTHON=python3
 
 CXXPROGS=mincore evict
 
-all:: $(CXXPROGS) subs
+all:: $(CXXPROGS)
+
+ifndef NOTEST
+all:: subs
+endif
 
 .PHONY: subs
 subs:
@@ -41,6 +45,7 @@ evict: evict.o mapping.o
 
 
 PROGS=$(CXXPROGS) \
+    cb \
     gencpp \
 	stdinc \
 	perror \
