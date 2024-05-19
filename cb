@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Produce indented C++ source ala the old 'cb' (code beautifier) tool
+
+indent -i4 -bl -blf -npcs -bli0 -npsl $*
+
