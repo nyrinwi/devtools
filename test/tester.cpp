@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <iomanip>
+#include <sys/file.h>
 #include "mapping.h"
 
 #include <gtest/gtest.h>
@@ -17,7 +19,7 @@ public:
     int fd() const
         { return m_fd; }
 
-    void read(ssize_t nbytes=-1);
+    void read(ssize_t nbytes=-1,size_t offset=0);
 
     Tempfile(size_t size=0);
     ~Tempfile();
@@ -30,42 +32,42 @@ Tempfile::Tempfile(size_t size)
     m_fd = mkstemp(name);
     assert(m_fd != -1);
     m_filename = name;
-    if ( size )
+    if (size)
     {
         int r = ftruncate(m_fd,size);
         assert(r==0);
     }
 }
 
-void Tempfile::read(ssize_t nbytes)
+void Tempfile::read(ssize_t nbytes,size_t offset)
 {
-    if ( nbytes == -1 )
+    if (nbytes == -1)
     {
         nbytes = m_size;
     }
-    char buf[ getpagesize() ];
+    char buf[getpagesize()];
 
-    int nwrites = (nbytes + getpagesize() - 1) / getpagesize();
-    lseek(m_fd,0,SEEK_SET);
-    for (int i=0; i<nwrites; i++)
+    int nReads = (nbytes + getpagesize() - 1) / getpagesize();
+    lseek(m_fd,offset,SEEK_SET);
+    for (int i=0; i<nReads; i++)
     {
-        ssize_t rsize = getpagesize();
-        ssize_t readto = (i+1)*rsize;;
-        if ( readto > m_size )
+        ssize_t readSize = getpagesize();
+        ssize_t readto = (i+1)*readSize;;
+        if (readto > m_size)
         {
-            rsize = m_size % getpagesize();
+            readSize = m_size % getpagesize();
         }
-        ssize_t r = ::read(m_fd,buf,rsize);
-        if ( r == -1 )
+        ssize_t r = ::read(m_fd,buf,readSize);
+        if (r == -1)
         {
             perror("read");
         }
-        if ( r != rsize )
+        if (r != readSize)
         {
-            std::cerr << "rsize " << rsize << std::endl;
+            std::cerr << "readSize " << readSize << std::endl;
             std::cerr << "r " << r << std::endl;
         }
-        assert(r == rsize);
+        assert(r == readSize);
     }
 }
 
@@ -76,34 +78,66 @@ Tempfile::~Tempfile()
 
 TEST(mapping,mincore)
 {
-    const size_t npages = 128;
-    const size_t filesize = npages*getpagesize();
+    const size_t numPages = 128;
+    const size_t filesize = numPages*getpagesize();
 
     Tempfile tmp(filesize);
-    Mapping* mapping = new Mapping(tmp.filename());
-    EXPECT_EQ(mapping->size(),filesize);
-    EXPECT_EQ(mapping->n_resident,0U);
+    const size_t lowSize = getpagesize()*(numPages/3);
+    const size_t highSize = filesize - lowSize;
+
+    std::shared_ptr<Mapping> mapAll,mapLow,mapHigh;
+    ASSERT_NO_THROW(mapAll.reset(new Mapping(tmp.filename()))) << "mapAll";
+    ASSERT_NO_THROW(mapLow.reset(new Mapping(tmp.filename(),0,lowSize))) << "mapLow:" << std::hex << lowSize;
+    ASSERT_NO_THROW(mapHigh.reset(new Mapping(tmp.filename(),lowSize,highSize))) << "mapHigh:"
+        << std::hex << lowSize
+        << "," << highSize;
+    EXPECT_EQ(mapAll->size(),filesize);
+    EXPECT_EQ(mapLow->size(),lowSize);
+    EXPECT_EQ(mapHigh->size(),highSize);
+
+    EXPECT_EQ(mapAll->n_resident,0U);
+    EXPECT_EQ(mapLow->n_resident,0U);
+    EXPECT_EQ(mapHigh->n_resident,0U);
+
+    // read two pages in mapHigh
+    tmp.read(2*getpagesize(),lowSize);
+
+    // Update the mapping info
+    for (auto map : {mapAll,mapLow,mapHigh})
+    {
+        map->mincore();
+    }
+
+    // mincore should show 2 pages resident in mapAll and mapHigh. mapLow should be empty still
+    EXPECT_GE(mapAll->n_resident,2U);
+    EXPECT_EQ(mapLow->n_resident,0U);
+    EXPECT_GE(mapHigh->n_resident,2U);
 }
 
 TEST(mapping,evict)
 {
-    const size_t npages = 128;
-    const size_t filesize = npages*getpagesize() - getpagesize()/2;
+    const size_t numPages = 128;
+
+    // To make things interesting, use a file size that's not a multiple of page size
+    // The mapping will still be numPages long
+    const size_t filesize = numPages*getpagesize() - getpagesize()/2;
 
     Tempfile tmp(filesize);
     Mapping* mapping = new Mapping(tmp.filename());
 
+    // Read the whole file to make all pages resident
     tmp.read(filesize);
     mapping->mincore();
-    EXPECT_EQ(mapping->n_resident,npages);
+    EXPECT_EQ(mapping->n_resident,numPages);
 
+    // Behavior is determined by madvise(). In this case less than one page eviction means no eviction
     mapping->evict_bytes(1);
-    EXPECT_EQ(mapping->n_resident,npages);
+    EXPECT_EQ(mapping->n_resident,numPages) << "expected no page evicitons with only one byte";
 
     mapping->evict_bytes(getpagesize()-1);
-    EXPECT_EQ(mapping->n_resident,npages);
+    EXPECT_EQ(mapping->n_resident,numPages) << "expected no page evicitons with less than a page";
 
     mapping->evict_bytes(getpagesize());
-    EXPECT_EQ(mapping->n_resident,npages-1);
+    EXPECT_EQ(mapping->n_resident,numPages-1);
 }
 

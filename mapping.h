@@ -41,11 +41,11 @@ public:
         { return 100.0 * static_cast<double>(n_resident) / static_cast<double>(m_n_pages); }
 
     // Kick pages out of memory starting at the beginning of the mapping
-    void evict_pct( double pct=100.0 );
-    void evict_bytes( size_t n_bytes );
-    void evict_pages( size_t n_pages );
+    void evict_pct(double pct=100.0);
+    void evict_bytes(size_t n_bytes);
+    void evict_pages(size_t n_pages);
 
-    Mapping( const char* filename);
+    Mapping(const char* filename,size_t offset=0,size_t length=0);
     ~Mapping();
 };
 

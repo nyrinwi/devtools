@@ -3,7 +3,7 @@
 CC=g++
 CXXFLAGS=--std=c++11
 export CXXFLAGS
-GTESTHOME=~/dev/googletest-release-1.10.0/googletest
+GTESTHOME=/usr/src/googletest/googletest
 LDLIBS+=-L $(GTESTHOME)/lib -lgtest_main -lgtest -lpthread
 CXXFLAGS+=-I $(GTESTHOME)/include -I $(CURDIR)/..
 

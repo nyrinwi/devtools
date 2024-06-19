@@ -1,6 +1,7 @@
 .PHONY: test_stdinc test_popt
 
 CXXFLAGS=-Wall -ggdb
+
 CC=g++
 PYTHON=python3
 
@@ -42,6 +43,8 @@ test_mincore:
 mincore: mincore.o mapping.o
 
 evict: evict.o mapping.o
+
+mapping.o: mapping.cpp mapping.h
 
 
 PROGS=$(CXXPROGS) \
