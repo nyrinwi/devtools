@@ -47,5 +47,11 @@ public:
 
     Mapping(const char* filename,size_t offset=0,size_t length=0);
     ~Mapping();
+
+    // Returns the size of the file in bytes
+    static size_t getFileSize(const char*filename);
+
+    // Returns the number of pages required to map the file
+    static size_t getNumPages(const char*filename);
 };
 

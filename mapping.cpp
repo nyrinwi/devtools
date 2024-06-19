@@ -22,23 +22,33 @@ static void throwError(const std::string &msg)
     throw std::runtime_error(emsg);
 }
 
-Mapping::Mapping(const char* filename,size_t offset,size_t length)
-: m_filename(filename)
+size_t Mapping::getFileSize(const char*path)
 {
     struct stat sbuf;
-    int r = stat(filename, &sbuf);
+    int r = stat(path, &sbuf);
     if (r != 0)
     {
         throwError("cannot stat file");
     }
+    return sbuf.st_size;
+}
+
+size_t Mapping::getNumPages(const char*path)
+{
+    return (getFileSize(path)+getpagesize()-1)/getpagesize();
+}
+
+Mapping::Mapping(const char* filename,size_t offset,size_t length)
+: m_filename(filename)
+{
+    auto fileSize = getFileSize(filename);
 
     if (length==0 and offset==0)
     {
-        m_size = sbuf.st_size;
+        m_size = fileSize;
     }
     else
     {
-        size_t fileSize = sbuf.st_size;
         if (offset+length > fileSize)
         {
             std::ostringstream oss;
@@ -47,7 +57,7 @@ Mapping::Mapping(const char* filename,size_t offset,size_t length)
         }
         if (length == 0)
         {
-            m_size = sbuf.st_size;
+            m_size = fileSize-offset;
         }
         else
         {
@@ -60,6 +70,8 @@ Mapping::Mapping(const char* filename,size_t offset,size_t length)
     {
         throwError("cannot open file");
     }
+    // Note we keep m_fd open for later use with fadvise()
+    // TODO: maybe we should re-open instead?
 
     m_ptr = mmap(NULL,m_size,PROT_READ,MAP_SHARED|MAP_NORESERVE,m_fd,offset);
     if (m_ptr == MAP_FAILED)
@@ -67,6 +79,8 @@ Mapping::Mapping(const char* filename,size_t offset,size_t length)
         close(m_fd);
         throwError("cannot mmap file");
     }
+
+    // Round up the number of pages
     m_n_pages = (m_size + getpagesize() - 1) / getpagesize();
 
     mincore();
