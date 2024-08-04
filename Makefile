@@ -1,3 +1,4 @@
+# vim: noet
 .PHONY: test_stdinc test_popt
 
 CXXFLAGS=-Wall -ggdb
@@ -48,13 +49,14 @@ mapping.o: mapping.cpp mapping.h
 
 
 PROGS=$(CXXPROGS) \
-    cb \
-    gencpp \
+	cb \
+	gencpp \
 	stdinc \
+	mkchroot \
 	perror \
 	pexpr \
 	popt \
-    repeat \
+	repeat \
 	waitinfo \
 	$()
 
