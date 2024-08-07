@@ -33,6 +33,8 @@ def main():
         for err,name in sorted(errno.errorcode.items()):
             if opts.search in name:
                 vals.append(err)
+            elif opts.search in os.strerror(err):
+                vals.append(err)
 
     for v in sorted(vals):
         key = errno.errorcode.get(v,"N/A")
