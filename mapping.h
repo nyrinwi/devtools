@@ -1,4 +1,5 @@
 #include <string>
+#include <ostream>
 
 /**
  * Create a read-only shared mapping of a file.
@@ -13,9 +14,11 @@ class Mapping
     size_t m_n_pages;
     void* m_ptr;
 
+    // TODO: m_fd and m_ptr need reference counting
+
 public:
-    int fd() { return m_fd; };
-    const char* filename() { return m_filename.c_str(); };
+    int fd() const { return m_fd; };
+    const char* filename() const { return m_filename.c_str(); };
 
     // Call mincore and update n_pages and n_resident
     void mincore();
@@ -54,4 +57,6 @@ public:
     // Returns the number of pages required to map the file
     static size_t getNumPages(const char*filename);
 };
+
+std::ostream& operator<<(std::ostream& fp, const Mapping& mapping);
 

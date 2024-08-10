@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <sys/file.h>
 #include "mapping.h"
@@ -139,5 +140,21 @@ TEST(mapping,evict)
 
     mapping->evict_bytes(getpagesize());
     EXPECT_EQ(mapping->n_resident,numPages-1);
+}
+
+TEST(mapping,getXYZ)
+{
+    // Create a file of 1+1/3 pages
+    const std::string filename = "testfile.dat";
+    std::vector<char> buf(getpagesize()+getpagesize()/3);
+    std::ofstream ofp(filename);
+    ofp.write(&buf[0],buf.size());
+    ofp.close();
+
+    auto numPages = Mapping::getNumPages(filename.c_str());
+    ASSERT_EQ(2,numPages) << "page count should round up";
+
+    auto size = Mapping::getFileSize(filename.c_str());
+    ASSERT_EQ(buf.size(),size) << "file size incorrect";
 }
 

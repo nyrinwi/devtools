@@ -38,9 +38,6 @@ test_waitinfo:
 	./waitinfo -x -- bash -c \'exit 5\' | grep 'exited 5'
 	./waitinfo -x -- bash -c \'exit 6\' | grep 'exited 6'
 
-test_mincore:
-	./mincore mincore foo
-
 mincore: mincore.o mapping.o
 
 evict: evict.o mapping.o
@@ -67,6 +64,6 @@ uninstall::
 	$(RM) $(addprefix $(HOME)/bin/,$(PROGS))
 
 clean::
-	$(RM) test_stdinc* *.pyc *.o $(CXXPROGS)
+	$(RM) test_stdinc* *.pyc *.o test.dat $(CXXPROGS)
 	make -C test clean
 
