@@ -41,7 +41,7 @@ size_t Mapping::getNumPages(const char*path)
 Mapping::Mapping(const char* filename,size_t offset,size_t length)
 : m_filename(filename)
 {
-    auto fileSize = getFileSize(filename);
+    auto fileSize = getNumPages(filename) * getpagesize();
 
     if (length==0 and offset==0)
     {
@@ -52,7 +52,8 @@ Mapping::Mapping(const char* filename,size_t offset,size_t length)
         if (offset+length > fileSize)
         {
             std::ostringstream oss;
-            oss << "offset+length exceeds file size";
+            oss << "offset+length exceeds file size; ";
+            oss << offset << "+" << length;
             throw std::runtime_error(oss.str());
         }
         if (length == 0)
@@ -135,3 +136,8 @@ void Mapping::evict_pages(size_t n_pages)
     evict_bytes(nbytes);
 }
 
+std::ostream& operator<<(std::ostream& fp, const Mapping& mapping)
+{
+    fp << mapping.filename() << ": " << mapping.size();
+    return fp;
+}

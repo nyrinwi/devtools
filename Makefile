@@ -38,8 +38,14 @@ test_waitinfo:
 	./waitinfo -x -- bash -c \'exit 5\' | grep 'exited 5'
 	./waitinfo -x -- bash -c \'exit 6\' | grep 'exited 6'
 
-test_mincore:
-	./mincore mincore foo
+TEST_SIZE=10G
+test_mincore: mincore
+	truncate -s $(TEST_SIZE)  test.dat
+	/usr/bin/time -f %E ./mincore test.dat
+
+rand.dat:
+	dd if=/dev/urandom bs=1M count=10 of=$@
+	dd if=/dev/urandom bs=1 count=1234 >> $@
 
 mincore: mincore.o mapping.o
 
@@ -67,6 +73,6 @@ uninstall::
 	$(RM) $(addprefix $(HOME)/bin/,$(PROGS))
 
 clean::
-	$(RM) test_stdinc* *.pyc *.o $(CXXPROGS)
+	$(RM) test_stdinc* *.pyc *.o test.dat $(CXXPROGS)
 	make -C test clean
 
