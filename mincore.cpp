@@ -12,6 +12,8 @@
 
 #include "mapping.h"
 
+static const size_t OneGiB = 1024*1024*1024;
+
 static unsigned getMaxThreads()
 {
     static unsigned maxThreads=0;
@@ -41,7 +43,7 @@ unsigned getMaps(const char* filename, std::vector<Mapping>& mVec)
     assert(numPages>0);
 
     // How many threads will we use??
-    const size_t targetPagesPerThread = 1024;
+    const size_t targetPagesPerThread = OneGiB/getpagesize();
     const unsigned maxThreads = getMaxThreads();
     unsigned numThreads;
     if (numPages > targetPagesPerThread)
@@ -60,7 +62,6 @@ unsigned getMaps(const char* filename, std::vector<Mapping>& mVec)
     {
         numThreads=maxThreads;
     }
-    std::cout << "numThreads=" << numThreads << std::endl;
 
     // Add 1 to make sure the sum of these values exceeds the file size
     // We'll adjust the last one to be the right size

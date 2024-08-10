@@ -14,5 +14,10 @@ all test:: tester
 
 tester: mapping.o
 
+TEST_SIZE=1G
+test_mincore: ../mincore
+	@truncate -s $(TEST_SIZE)  test.dat
+	@/usr/bin/time -f '$(TEST_SIZE) %E' ../mincore test.dat
+
 clean::
-	$(RM) *.o tester
+	$(RM) *.o tester test.dat
