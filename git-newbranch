@@ -1,3 +1,5 @@
 #!/bin/bash
 
-date +$(id -nu)%Y.%V
+bn=$(date +$(id -nu)%Y.%V)
+echo $bn
+git checkout -b $bn

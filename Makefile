@@ -48,6 +48,8 @@ mapping.o: mapping.cpp mapping.h
 PROGS=$(CXXPROGS) \
 	cb \
 	gencpp \
+	git-lstree \
+	git-newbranch \
 	stdinc \
 	mkchroot \
 	perror \
