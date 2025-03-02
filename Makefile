@@ -48,6 +48,7 @@ mapping.o: mapping.cpp mapping.h
 PROGS=$(CXXPROGS) \
 	cb \
 	gencpp \
+	git-diffstat \
 	git-lstree \
 	git-newbranch \
 	stdinc \
