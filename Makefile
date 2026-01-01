@@ -53,6 +53,7 @@ PROGS=$(CXXPROGS) \
 	git-newbranch \
 	stdinc \
 	mkchroot \
+	mkcpp \
 	perror \
 	pexpr \
 	popt \

@@ -8,6 +8,14 @@ Generates a skeleton for a python script that uses optparse.
 
 Generates a skeleton for a C or C++ program
 
+## mkcpp 
+
+Create a stub cpp source file with a Makefile in the current dir
+
+## gencpp
+
+Create commonly used blocks of CPP code
+
 ## mincore
 
 Tell me how many pages of a file are in memory

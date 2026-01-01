@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+from pathlib import Path
+
+_logger = logging.getLogger(__name__)
+
+def genMakefile(stem):
+    makefile = Path("Makefile")
+    if makefile.exists():
+        _logger.warning("not clobbering existing Makefile")
+        return
+
+    makefile.write_text("\n".join((
+        "# vim: noet",
+        "CXXFLAGS=-Wall",
+        f"{stem}: {stem}.cpp")),encoding='utf8')
+
+def genCpp(path):
+    if path.exists():
+        _logger.warning(f"not clobbering existing {path}")
+        return
+
+    path.write_text("\n".join((
+        "#include <cstdio>",
+        "#include <cstring>",
+        "#include <iostream>",
+        "int main( int argc, char *argv[] )",
+        "{",
+        "}")),encoding='utf8')
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(dest="name")
+    parser.add_argument("--debug",action="count",default=0)
+    opts = parser.parse_args()
+
+    logging.basicConfig( level=logging.INFO )
+    if opts.debug:
+        _logger.setLevel(logging.DEBUG)
+        _logger.debug("debug level {0}".format(opts.debug))
+        if opts.debug > 1:
+            logging.getLogger("").setLevel(logging.DEBUG)
+
+    userInput = Path(opts.name)
+    if userInput.suffix == ".cpp":
+        sourceFile = userInput
+    else:
+        sourceFile = userInput.with_suffix(".cpp")
+
+    exeName = userInput.stem
+    print(f"userIput {userInput} -> {sourceFile}, {exeName}")
+    genMakefile(exeName)
+    genCpp(sourceFile)
+
+if __name__ == "__main__":
+    main()
